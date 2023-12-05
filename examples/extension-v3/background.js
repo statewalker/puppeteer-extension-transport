@@ -1,7 +1,5 @@
-import './connectToCdbBrowser.umd.js';
+import {ExtensionDebuggerTransport, puppeteerConnect} from './connectToCdbBrowser.es.js';
 
-console.log(global.api)
-/*
 const run = async (tabId) => {
   const extensionTransport = await ExtensionDebuggerTransport.create(tabId);
   const browser = await puppeteerConnect({
@@ -40,4 +38,3 @@ chrome.action.onClicked.addListener(() => {
 //     console.log('test');
 //   }
 // });
-*/
