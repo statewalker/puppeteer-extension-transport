@@ -15,7 +15,7 @@
     ],
     "background": {
         "service_worker": "background.js",
-        "sourceType": "module"
+        "type": "module"
     },
     "manifest_version": 3
 }

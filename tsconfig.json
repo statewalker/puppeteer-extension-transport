@@ -1,17 +1,21 @@
 {
-  "extends": "./node_modules/gts/tsconfig-google.json",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["DOM"],
+    "moduleResolution": "node",
     "rootDir": ".",
     "outDir": "build",
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "target": "ES6"
+    "esModuleInterop": false,
+    "lib": ["es2020", "es2019", "es2018", "es2017", "dom"],
+    "target": "es2020",
+    "allowSyntheticDefaultImports": false,
+    "paths": {
+      "@lib/*": ["./lib/*"]
+    }
   },
   "include": [
     "lib/**/*.ts",
     "examples/**/*.ts",
     "examples/**/*.json",
     "test/**/*.ts"
-  ]
+, "examples/extension-v3/background.js"  ]
 }

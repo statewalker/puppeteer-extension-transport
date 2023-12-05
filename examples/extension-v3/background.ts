@@ -1,9 +1,11 @@
-import {ExtensionDebuggerTransport, puppeteerConnect} from '../../lib';
+import { ExtensionDebuggerTransport } from '@lib/index';
+import puppeteer from 'puppeteer-core/lib/cjs/puppeteer/web';
 
 const run = async (tabId: number) => {
   const extensionTransport = await ExtensionDebuggerTransport.create(tabId);
-  const browser = await puppeteerConnect({
+  const browser = await puppeteer.connect({
     transport: extensionTransport,
+    defaultViewport: null,
   });
 
   // use first page from pages instead of using browser.newPage()
