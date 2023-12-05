@@ -1,15 +1,14 @@
-import puppeteer from 'puppeteer-core/lib/cjs/puppeteer/web';
-import {ExtensionDebuggerTransport} from '../../lib';
+import {ExtensionDebuggerTransport, puppeteerConnect} from '../../lib';
 
 const run = async (tabId: number) => {
   const extensionTransport = await ExtensionDebuggerTransport.create(tabId);
-  const browser = await puppeteer.connect({
+  const browser = await puppeteerConnect({
     transport: extensionTransport,
-    defaultViewport: null,
   });
 
   // use first page from pages instead of using browser.newPage()
   const [page] = await browser.pages();
+  if (!page) return;
 
   await page.goto('https://wikipedia.org');
 
@@ -28,15 +27,14 @@ const run = async (tabId: number) => {
   await page.close();
 };
 
-chrome.commands.onCommand.addListener(command => {
-  if (command === 'test') {
-    console.log('test');
-    chrome.tabs.create(
-      {
-        active: true,
-        url: 'https://www.google.co.in',
-      },
-      tab => (tab.id ? run(tab.id) : null)
-    );
-  }
+chrome.action.onClicked.addListener(() => {
+  chrome.tabs.create({active: true, url: 'https://www.google.com'}, tab =>
+    tab.id ? run(tab.id) : null
+  );
+  // tab.id && run(tab.id);
 });
+// chrome.commands.onCommand.addListener(command => {
+//   if (command === 'test') {
+//     console.log('test');
+//   }
+// });

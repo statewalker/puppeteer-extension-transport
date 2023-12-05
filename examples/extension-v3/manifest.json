@@ -2,23 +2,20 @@
     "name": "Puppeteer Extension Example v3",
     "version": "0.0.0.1",
     "description": "Example extension which uses puppeteer-extension-transport",
+    "action": {
+        "default_title": "Click to Debug!!!"
+    },
     "permissions": [
         "tabs",
-        "debugger"        
+        "debugger",
+        "activeTab"
     ],
     "host_permissions": [
         "<all_urls>"
     ],
     "background": {
-        "service_worker": "background.js"
-    },
-    "commands": {
-        "test": {
-            "suggested_key": {
-                "default": "Alt+E"
-            },
-            "description": "for testing puppeteer-extension-transport"
-        }
+        "service_worker": "background.js",
+        "sourceType": "module"
     },
     "manifest_version": 3
 }

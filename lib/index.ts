@@ -1,4 +1,6 @@
-import {ConnectionTransport} from 'puppeteer-core';
+import {ConnectionTransport, puppeteerConnect} from './connectToCdbBrowser';
+
+export {ConnectionTransport, puppeteerConnect};
 
 interface CDPCommand {
   id: number;
