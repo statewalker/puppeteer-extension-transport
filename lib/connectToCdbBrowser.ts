@@ -1,14 +1,14 @@
-import {CdpBrowser} from 'puppeteer-core/lib/esm/puppeteer/cdp/Browser.js';
+import {CdpBrowser} from 'puppeteer-core/src/cdp/Browser';
 import type {
   BrowserCloseCallback,
   IsPageTargetCallback,
   TargetFilterCallback,
-} from 'puppeteer-core/lib/esm/puppeteer/api/Browser.js';
-import {Page} from 'puppeteer-core/lib/esm/puppeteer/api/Page.js';
-import {Connection} from 'puppeteer-core/lib/esm/puppeteer/cdp/Connection.js';
-import type {Viewport} from 'puppeteer-core/lib/esm/puppeteer/common/Viewport.js';
-import {ConnectionTransport} from 'puppeteer-core/lib/esm/puppeteer/common/ConnectionTransport.js';
-import {CDPSession} from 'puppeteer-core/lib/esm/puppeteer/api/CDPSession.js';
+} from 'puppeteer-core/src/api/Browser';
+import {Page} from 'puppeteer-core/src/api/Page';
+import {Connection} from 'puppeteer-core/src/cdp/Connection';
+import type {Viewport} from 'puppeteer-core/src/common/Viewport';
+import {ConnectionTransport} from 'puppeteer-core/src/common/ConnectionTransport';
+import {CDPSession} from 'puppeteer-core/src/api/CDPSession';
 
 export {ConnectionTransport};
 const DEFAULT_VIEWPORT = Object.freeze({width: 800, height: 600});
