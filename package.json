@@ -24,16 +24,16 @@
   "scripts": {
     "build": "vite build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prelint": "npm run fix",
+    "prelint": "yarn run fix",
     "lint": "gts lint",
     "clean": "gts clean",
-    "precompile": "npm run clean",
-    "compile": "tsc",
-    "postcompile": "esbuild",
+    "precompile": "yarn run clean",
+    "compile": "yarn run build",
     "fix": "gts fix",
-    "prepare": "npm run compile",
-    "pretest": "npm run compile",
-    "posttest": "npm run lint",
+    "prepare": "yarn run compile",
+    "pretest": "yarn run compile",
+    "posttest": "yarn run lint",
+    "dev": "vite build --mode development --watch",
     "docs": "typedoc --excludePrivate --excludeInternal --readme none lib/index.ts"
   },
   "devDependencies": {
@@ -55,11 +55,6 @@
   "dependencies": {
     "@types/debug": "^4.1.12",
     "esbuild": "^0.19.8",
-    "rollup-plugin-node-builtins": "~2.1.2",
-    "@esbuild-plugins/node-globals-polyfill": "^0.2.1",
-    "rollup-plugin-node-polyfills":"^0.2.3",
-    "@esbuild-plugins/node-modules-polyfill":"^0.2.2",
-    "@rollup/plugin-node-resolve":"^15.2.3",
-    "esbuild-plugin-polyfill-node": "^0.3.0"
+    "@esbuild-plugins/node-modules-polyfill":"^0.2.2"
   }
 }

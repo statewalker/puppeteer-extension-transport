@@ -10,7 +10,6 @@ import type {Viewport} from 'puppeteer-core/lib/cjs/puppeteer/common/Viewport.js
 import {ConnectionTransport} from 'puppeteer-core/lib/cjs/puppeteer/common/ConnectionTransport.js';
 import {CDPSession} from 'puppeteer-core/lib/cjs/puppeteer/api/CDPSession.js';
 
-
 export {ConnectionTransport};
 const DEFAULT_VIEWPORT = Object.freeze({width: 800, height: 600});
 

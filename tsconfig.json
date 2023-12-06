@@ -1,18 +1,21 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    
+    "moduleResolution": "node",
     "rootDir": ".",
     "outDir": "build",
     "esModuleInterop": false,
     "lib": ["es2020", "es2019", "es2018", "es2017", "dom"],
     "target": "es2020",
-    "allowSyntheticDefaultImports": false
+    "allowSyntheticDefaultImports": false,
+    "paths": {
+      "@lib/*": ["./lib/*"]
+    }
   },
   "include": [
     "lib/**/*.ts",
     "examples/**/*.ts",
     "examples/**/*.json",
     "test/**/*.ts"
-  ]
+, "examples/extension-v3/background.js"  ]
 }

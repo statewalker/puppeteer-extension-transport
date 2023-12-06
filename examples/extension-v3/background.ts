@@ -1,6 +1,6 @@
-import {ExtensionDebuggerTransport, puppeteerConnect} from './connectToCdbBrowser.es.js';
+import {ExtensionDebuggerTransport, puppeteerConnect} from '@lib/index';
 
-const run = async (tabId) => {
+const run = async (tabId:number) => {
   const extensionTransport = await ExtensionDebuggerTransport.create(tabId);
   const browser = await puppeteerConnect({
     transport: extensionTransport,
