@@ -41,20 +41,17 @@
     "@types/node": "20.10.3",
     "@types/puppeteer-core": "^7.0.4",
     "@types/ws": "8.5.10",
+    "@types/debug": "^4.1.12",
+    "esbuild": "^0.19.8",
+    "@esbuild-plugins/node-modules-polyfill":"^0.2.2",
     "browserify": "^17.0.0",
     "gts": "^5.2.0",
-    "mitt": "3.0.1",
     "parsel-js": "1.1.2",
-    "puppeteer-core": "^21.5.2",
-    "rxjs": "7.8.1",
+    "puppeteer-core": "^21.6.0",
     "typedoc": "^0.25.4",
     "typedoc-plugin-markdown": "^3.11.7",
     "typescript": "^5.3.2",
     "vite": "^5.0.5"
-  },
-  "dependencies": {
-    "@types/debug": "^4.1.12",
-    "esbuild": "^0.19.8",
-    "@esbuild-plugins/node-modules-polyfill":"^0.2.2"
   }
+
 }
