@@ -48,7 +48,7 @@ type DebuggerApi = {
      * JSON object with request parameters. This object must conform to the remote debugging params scheme for given method.
      * @return The `sendCommand` method provides its result via callback or returned as a `Promise` (MV3 only).
      */
-  sendCommand: (
+    sendCommand: (
         target: chrome.debugger.Debuggee,
         method: string,
         commandParams?: Object,
