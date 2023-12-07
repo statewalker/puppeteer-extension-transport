@@ -1,8 +1,8 @@
-import { ExtensionDebuggerTransport } from '@lib/index';
-import puppeteer from 'puppeteer-core/lib/cjs/puppeteer/web';
+import { puppeteer, ExtensionDebuggerTransport } from './webrun-puppeteer-api.js';
 
-const run = async (tabId: number) => {
-  const extensionTransport = await ExtensionDebuggerTransport.create(tabId);
+const run = async (tabId) => {
+  const api = chrome;
+  const extensionTransport = await ExtensionDebuggerTransport.create(api, tabId);
   const browser = await puppeteer.connect({
     transport: extensionTransport,
     defaultViewport: null,
