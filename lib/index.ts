@@ -1,4 +1,7 @@
-import { ConnectionTransport } from 'puppeteer-core';
+import {ConnectionTransport} from 'puppeteer-core';
+import puppeteer from 'puppeteer-core/lib/cjs/puppeteer/web';
+
+export {puppeteer};
 
 interface CDPCommand {
   id: number;
@@ -18,6 +21,52 @@ interface CDPEvent {
   method: string;
   params: any;
   sessionId?: string;
+}
+
+type DebuggerApi = {
+  debugger: {
+    /**
+     * Attaches debugger to the given target.
+     * @param target Debugging target to which you want to attach.
+     * @param requiredVersion Required debugging protocol version ("0.1"). One can only attach to the debuggee with matching major version and greater or equal minor version. List of the protocol versions can be obtained in the documentation pages.
+     * @return The `attach` method provides its result via callback or returned as a `Promise` (MV3 only). It has no parameters.
+     */
+    attach : (target: chrome.debugger.Debuggee, requiredVersion: string) => Promise<void>;
+
+    /**
+     * Detaches debugger from the given target.
+     * @param target Debugging target from which you want to detach.
+     * @return The `detach` method provides its result via callback or returned as a `Promise` (MV3 only). It has no parameters.
+     */
+    detach: (target: chrome.debugger.Debuggee) => Promise<void>;
+
+    /**
+     * Sends given command to the debugging target.
+     * @param target Debugging target to which you want to send the command.
+     * @param method Method name. Should be one of the methods defined by the remote debugging protocol.
+     * @param commandParams Since Chrome 22.
+     * JSON object with request parameters. This object must conform to the remote debugging params scheme for given method.
+     * @return The `sendCommand` method provides its result via callback or returned as a `Promise` (MV3 only).
+     */
+  sendCommand: (
+        target: chrome.debugger.Debuggee,
+        method: string,
+        commandParams?: Object,
+    ) => Promise<Object>;
+
+    /**
+     * Since Chrome 28.
+     * Returns the list of available debug targets.
+     * @return The `getTargets` method provides its result via callback or returned as a `Promise` (MV3 only).
+     */
+    getTargets : () => Promise<chrome.debugger.TargetInfo[]>;
+
+    /** Fired when browser terminates debugging session for the tab. This happens when either the tab is being closed or Chrome DevTools is being invoked for the attached tab. */
+    onDetach : chrome.debugger.DebuggerDetachedEvent;
+
+    /** Fired whenever debugging target issues instrumentation event. */
+    onEvent: chrome.debugger.DebuggerEventEvent;
+  }
 }
 
 /**
@@ -68,40 +117,32 @@ export class ExtensionDebuggerTransport implements ConnectionTransport {
    * @throws Error
    * If debugger permission not given to extension
    */
-  static create(
+  static async create(
+    api : DebuggerApi,
     tabId: number,
     functionSerializer?: FunctionConstructor
   ): Promise<ExtensionDebuggerTransport> {
-    if (chrome.debugger) {
-      const debugee: chrome.debugger.Debuggee = {
-        tabId: tabId,
-      };
-      return new Promise((resolve, reject) => {
-        chrome.debugger.attach(debugee, '1.3', async () => {
-          const error = chrome.runtime.lastError;
-          if (!error) {
-            const target = await this._getTargetInfo(debugee);
-            const transport = new ExtensionDebuggerTransport(target);
-            transport._initialize(functionSerializer);
-            resolve(transport);
-          } else {
-            reject(error);
-          }
-        });
-      });
-    } else {
-      throw new Error('no debugger permission');
-    }
+    const debugee: chrome.debugger.Debuggee = {
+      tabId: tabId,
+    };
+    await api.debugger.attach(debugee, '1.3');
+    const target = await this._getTargetInfo(api, debugee);
+    const transport = new ExtensionDebuggerTransport(api, target);
+    transport._initialize(functionSerializer);
+    return transport;
   }
 
-  private constructor(target: chrome.debugger.TargetInfo) {
+  api : DebuggerApi;
+
+  constructor(api : DebuggerApi, target: chrome.debugger.TargetInfo) {
+    this.api = api;
     this.target = target;
     this._sessionId = target.id;
     this.debugee = {
       tabId: target.tabId,
     };
 
-    chrome.debugger.onEvent.addListener((source, method, params) => {
+    this.api.debugger.onEvent.addListener((source, method, params) => {
       const event: CDPEvent = {
         method: method,
         params: params,
@@ -110,13 +151,13 @@ export class ExtensionDebuggerTransport implements ConnectionTransport {
       source.tabId === this.target.tabId ? this._emit(event) : null;
     });
 
-    chrome.debugger.onDetach.addListener(source => {
+    this.api.debugger.onDetach.addListener(source => {
       source.tabId === this.target.tabId ? this._closeTarget() : null;
     });
   }
 
   /** @internal */
-  send(message: string): void {
+  async send(message: string): Promise<void> {
     const command: CDPCommand = JSON.parse(message);
     const targetCommands = [
       'Target.getBrowserContexts',
@@ -128,26 +169,39 @@ export class ExtensionDebuggerTransport implements ConnectionTransport {
     if (targetCommands.includes(command.method)) {
       this._handleTargetCommand(command);
     } else {
-      chrome.debugger.sendCommand(
+      try {
+      const result = await this.api.debugger.sendCommand(
         this.debugee,
         command.method,
-        command.params,
-        result => this._handleCommandResponse(command, result)
-      );
+        command.params);
+        this._delaySend({
+          ...command,
+          error: undefined,
+          result: result,
+        });
+      } catch (error) {
+        this._delaySend({
+          ...command,
+          error: {
+            message: (error as any)?.message
+          }
+        });
+      }
     }
   }
 
   /** @internal */
-  close(): void {
-    chrome.debugger.detach(this.debugee, () => this._closeTarget());
+  async close(): Promise<void> {
+    await this.api.debugger.detach(this.debugee);
+    this._closeTarget();
   }
 
-  private static _getTargetInfo(
+  static async _getTargetInfo(
+    api : DebuggerApi,
     debugee: chrome.debugger.Debuggee
   ): Promise<chrome.debugger.TargetInfo> {
-    return new Promise((resolve, reject) => {
-      chrome.debugger.getTargets(targets => {
-        const target = targets
+    let targets = await api.debugger.getTargets();
+    const target = targets
           .filter(target => target.attached && target.tabId === debugee.tabId)
           .map(target => {
             return {
@@ -156,9 +210,8 @@ export class ExtensionDebuggerTransport implements ConnectionTransport {
               canAccessOpener: false,
             };
           });
-        target[0] ? resolve(target[0]) : reject(new Error('target not found'));
-      });
-    });
+    if (!target[0]) throw new Error('target not found');
+    return target[0];
   }
 
   private _initialize(functionSerializer?: FunctionConstructor) {
@@ -175,15 +228,6 @@ export class ExtensionDebuggerTransport implements ConnectionTransport {
     }
   }
 
-  private _handleCommandResponse(command: CDPCommand, result: any) {
-    const error = chrome.runtime.lastError;
-    const response: CDPCommandResponse = {
-      ...command,
-      error: error,
-      result: result,
-    };
-    this._delaySend(response);
-  }
 
   private _handleTargetCommand(command: CDPCommand) {
     const response: CDPCommandResponse = {

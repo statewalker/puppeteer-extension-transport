@@ -122,3 +122,5 @@ dist
 .vscode
 
 .DS_Store
+
+webrun-puppeteer-api.js
